@@ -86,6 +86,7 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 			err = decoder.Decode(&newConfig)
 			if err != nil {
 				log.Printf("Can't read config file: %s", err)
+				configFile.lastModified = fileInfo.ModTime()
 				continue
 			}
 
