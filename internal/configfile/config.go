@@ -62,7 +62,7 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(1 * time.Minute):
+			case <-time.After(10 * time.Second):
 			}
 
 			fileInfo, err := os.Stat(file)
