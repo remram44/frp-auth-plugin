@@ -2,27 +2,28 @@ package configfile
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"os"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Users []User `json:"users"`
+	Users []User `yaml:"users"`
 }
 
 type User struct {
-	Username string  `json:"username"`
-	Password string  `json:"password"`
-	Proxies  []Proxy `json:"proxies"`
+	Username string  `yaml:"username"`
+	Password string  `yaml:"password"`
+	Proxies  []Proxy `yaml:"proxies"`
 }
 
 type Proxy struct {
-	Name          string   `json:"name"`
-	CustomDomains []string `json:"custom_domains"`
-	HttpUser      string   `json:"http_user"`
-	HttpPassword  string   `json:"http_password"`
+	Name          string   `yaml:"name"`
+	CustomDomains []string `yaml:"custom_domains"`
+	HttpUser      string   `yaml:"http_user"`
+	HttpPassword  string   `yaml:"http_password"`
 }
 
 type ConfigFile struct {
@@ -42,8 +43,8 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	decoder := json.NewDecoder(fp)
-	decoder.DisallowUnknownFields()
+	decoder := yaml.NewDecoder(fp)
+	decoder.KnownFields(true)
 	var config Config
 	err = decoder.Decode(&config)
 	if err != nil {
@@ -79,8 +80,8 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 				log.Printf("Can't open config file: %s", err)
 				continue
 			}
-			decoder := json.NewDecoder(fp)
-			decoder.DisallowUnknownFields()
+			decoder := yaml.NewDecoder(fp)
+			decoder.KnownFields(true)
 			var newConfig Config
 			err = decoder.Decode(&newConfig)
 			if err != nil {
@@ -89,8 +90,8 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 			}
 
 			log.Print("New config loaded")
-			encoder := json.NewEncoder(log.Writer())
-			encoder.SetIndent("", "")
+			encoder := yaml.NewEncoder(log.Writer())
+			encoder.SetIndent(2)
 			encoder.Encode(newConfig)
 
 			configFile.config = &newConfig
