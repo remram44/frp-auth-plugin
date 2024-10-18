@@ -94,6 +94,7 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 			encoder.Encode(newConfig)
 
 			configFile.config = &newConfig
+			configFile.lastModified = fileInfo.ModTime()
 		}
 	}()
 
