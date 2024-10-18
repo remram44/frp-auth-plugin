@@ -91,10 +91,6 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 			}
 
 			log.Print("New config loaded")
-			encoder := yaml.NewEncoder(log.Writer())
-			encoder.SetIndent(2)
-			encoder.Encode(newConfig)
-
 			configFile.config = &newConfig
 			configFile.lastModified = fileInfo.ModTime()
 		}
