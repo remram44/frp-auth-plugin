@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/remram44/frp-auth-plugin/internal/configfile"
 )
@@ -157,7 +158,11 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// Lookup proxy
-		proxy, ok := user.Proxies[body.Content.ProxyName]
+		proxyName := body.Content.ProxyName
+		if strings.HasPrefix(proxyName, body.Content.User.User+".") {
+			proxyName = proxyName[len(body.Content.User.User)+1:]
+		}
+		proxy, ok := user.Proxies[proxyName]
 		if !ok {
 			log.Printf("Invalid proxy %s %s", body.Content.User, body.Content.ProxyName)
 			return
