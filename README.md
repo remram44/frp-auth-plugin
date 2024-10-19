@@ -4,23 +4,15 @@ This allows you to have multiple clients, each with a specific username and pass
 
 Example `frp-auth.json`:
 
-```json
-{
-    "users": [
-        {
-            "username": "frpc1",
-            "password": "1234",
-            "proxies": [
-                {
-                    "name": "frpcUser.service1",
-                    "custom_domains": ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"],
-                    "http_user": "enduser",
-                    "http_password": "hackme"
-                }
-            ]
-        }
-    ]
-}
+```yaml
+users:
+  - username: "frpc1"
+    password: "1234"
+    proxies:
+      - name: "frpcUser.service1"
+        custom_domains: ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"]
+        http_user: "enduser"
+        http_password: "hackme"
 ```
 
 Run frp-auth-plugin like so:
@@ -71,6 +63,6 @@ proxies:
     # You don't have to set this, and it will be overwritten if you do
     #customDomains:
     #  - service1.127-0-0-1.nip.io
-    #httpUser: enduser 
+    #httpUser: enduser
     #httpPassword: hackme
 ```
