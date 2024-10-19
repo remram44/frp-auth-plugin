@@ -19,9 +19,9 @@ type User struct {
 }
 
 type Proxy struct {
-	CustomDomains []string `yaml:"custom_domains"`
-	HttpUser      string   `yaml:"http_user"`
-	HttpPassword  string   `yaml:"http_password"`
+	CustomDomains []string `yaml:"customDomains"`
+	HttpUser      string   `yaml:"httpUser"`
+	HttpPassword  string   `yaml:"httpPassword"`
 }
 
 type ConfigFile struct {

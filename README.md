@@ -10,9 +10,9 @@ users:
     password: "1234"
     proxies:
       service1:
-        custom_domains: ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"]
-        http_user: "enduser"
-        http_password: "hackme"
+        customDomains: ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"]
+        httpUser: "enduser"
+        httpPassword: "hackme"
 ```
 
 Run frp-auth-plugin like so:
