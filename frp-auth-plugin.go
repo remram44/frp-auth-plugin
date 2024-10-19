@@ -123,25 +123,21 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 
 		// Lookup user
 		config := configFile.CurrentConfig()
-		for _, user := range config.Users {
-			if user.Username != body.Content.User {
-				continue
-			}
-
-			if user.Password != body.Content.Metas["token"] {
-				log.Printf("Invalid password for %s", body.Content.User)
-				reject("invalid password")
-				return
-			}
-
-			log.Printf("Login from %s as %s", body.Content.ClientAddress, body.Content.User)
-			res.WriteHeader(200)
-			io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
+		user, ok := config.Users[body.Content.User]
+		if !ok {
+			log.Printf("Invalid user %#v", body.Content.User)
+			reject("invalid user")
+			return
+		}
+		if user.Password != body.Content.Metas["token"] {
+			log.Printf("Invalid password for %s", body.Content.User)
+			reject("invalid password")
 			return
 		}
 
-		log.Printf("Invalid user %#v", body.Content.User)
-		reject("invalid user")
+		log.Printf("Login from %s as %s", body.Content.ClientAddress, body.Content.User)
+		res.WriteHeader(200)
+		io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
 	case "NewProxy":
 		var body FrpNewProxyRequest
 		err := decoder.Decode(&body)
@@ -153,48 +149,37 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 
 		// Lookup user
 		config := configFile.CurrentConfig()
-		for _, user := range config.Users {
-			if user.Username != body.Content.User.User {
-				continue
-			}
+		user, ok := config.Users[body.Content.User.User]
+		if !ok {
+			log.Printf("Invalid user %#v", body.Content.User)
+			reject("invalid user")
+			return
+		}
 
-			// Lookup proxy
-			for _, proxy := range user.Proxies {
-				if proxy.Name != body.Content.ProxyName {
-					continue
-				}
-
-				if body.Content.ProxyType != "http" {
-					reject("proxy not http")
-					return
-				}
-
-				// Replace proxy config with our own
-				newProxy := FrpNewProxy{
-					User:          body.Content.User,
-					Metas:         body.Content.Metas,
-					ProxyName:     body.Content.ProxyName,
-					ProxyType:     body.Content.ProxyType,
-					CustomDomains: proxy.CustomDomains,
-					HttpUser:      proxy.HttpUser,
-					HttpPassword:  proxy.HttpPassword,
-				}
-
-				log.Printf("NewProxy %s from %s", body.Content.ProxyName, body.Content.User.User)
-				res.WriteHeader(200)
-				io.WriteString(res, "{\"reject\": false, \"unchange\": false, \"content\":")
-				encoder := json.NewEncoder(res)
-				encoder.Encode(newProxy)
-				io.WriteString(res, "}")
-				return
-			}
-
+		// Lookup proxy
+		proxy, ok := user.Proxies[body.Content.ProxyName]
+		if !ok {
 			log.Printf("Invalid proxy %s %s", body.Content.User, body.Content.ProxyName)
 			return
 		}
 
-		log.Printf("Invalid user %#v", body.Content.User)
-		reject("invalid user")
+		// Replace proxy config with our own
+		newProxy := FrpNewProxy{
+			User:          body.Content.User,
+			Metas:         body.Content.Metas,
+			ProxyName:     body.Content.ProxyName,
+			ProxyType:     body.Content.ProxyType,
+			CustomDomains: proxy.CustomDomains,
+			HttpUser:      proxy.HttpUser,
+			HttpPassword:  proxy.HttpPassword,
+		}
+
+		log.Printf("NewProxy %s from %s", body.Content.ProxyName, body.Content.User.User)
+		res.WriteHeader(200)
+		io.WriteString(res, "{\"reject\": false, \"unchange\": false, \"content\":")
+		encoder := json.NewEncoder(res)
+		encoder.Encode(newProxy)
+		io.WriteString(res, "}")
 	default:
 		res.WriteHeader(200)
 		io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
