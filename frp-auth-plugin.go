@@ -99,9 +99,7 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 
 	reject := func(reason string) {
 		res.WriteHeader(200)
-		io.WriteString(res, "{\"reject\": true, \"reject_reason\": \"")
-		io.WriteString(res, reason)
-		io.WriteString(res, "\"}")
+		_, _ = fmt.Fprintf(res, "{\"reject\": true, \"reject_reason\": \"%s\"}", reason)
 	}
 
 	// Read body
@@ -115,8 +113,7 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 		return
 	case "Login":
 		var body FrpLoginRequest
-		err := decoder.Decode(&body)
-		if err != nil {
+		if err := decoder.Decode(&body); err != nil {
 			log.Printf("Bad JSON in request: %s", err)
 			http.Error(res, "Bad JSON", 400)
 			return
@@ -138,11 +135,10 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 
 		log.Printf("Login from %s as %s", body.Content.ClientAddress, body.Content.User)
 		res.WriteHeader(200)
-		io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
+		_, _ = io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
 	case "NewProxy":
 		var body FrpNewProxyRequest
-		err := decoder.Decode(&body)
-		if err != nil {
+		if err := decoder.Decode(&body); err != nil {
 			log.Printf("Bad JSON in request: %s", err)
 			http.Error(res, "Bad JSON", 400)
 			return
@@ -181,12 +177,16 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 
 		log.Printf("NewProxy %s from %s", body.Content.ProxyName, body.Content.User.User)
 		res.WriteHeader(200)
-		io.WriteString(res, "{\"reject\": false, \"unchange\": false, \"content\":")
+		if _, err := io.WriteString(res, "{\"reject\": false, \"unchange\": false, \"content\":"); err != nil {
+			return
+		}
 		encoder := json.NewEncoder(res)
-		encoder.Encode(newProxy)
-		io.WriteString(res, "}")
+		if err := encoder.Encode(newProxy); err != nil {
+			return
+		}
+		_, _ = io.WriteString(res, "}")
 	default:
 		res.WriteHeader(200)
-		io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
+		_, _ = io.WriteString(res, "{\"reject\": false, \"unchange\": true}")
 	}
 }
