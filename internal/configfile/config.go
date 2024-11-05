@@ -97,6 +97,10 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 	return configFile, nil
 }
 
+type ConfigProvider interface {
+	CurrentConfig() *Config
+}
+
 func (cf *ConfigFile) CurrentConfig() *Config {
 	return cf.config
 }

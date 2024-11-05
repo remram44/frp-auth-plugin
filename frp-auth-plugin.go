@@ -14,7 +14,7 @@ import (
 	"github.com/remram44/frp-auth-plugin/internal/configfile"
 )
 
-var configFile *configfile.ConfigFile
+var ConfigFile configfile.ConfigProvider
 
 func main() {
 	ctx := context.Background()
@@ -28,7 +28,7 @@ func main() {
 
 	// Read configuration
 	var err error
-	configFile, err = configfile.New(configFileName, ctx)
+	ConfigFile, err = configfile.New(configFileName, ctx)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading config file: %s\n", err)
 		os.Exit(1)
@@ -123,7 +123,7 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// Lookup user
-		config := configFile.CurrentConfig()
+		config := ConfigFile.CurrentConfig()
 		user, ok := config.Users[body.Content.User]
 		if !ok {
 			log.Printf("Invalid user %#v", body.Content.User)
@@ -149,7 +149,7 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// Lookup user
-		config := configFile.CurrentConfig()
+		config := ConfigFile.CurrentConfig()
 		user, ok := config.Users[body.Content.User.User]
 		if !ok {
 			log.Printf("Invalid user %#v", body.Content.User)
