@@ -160,7 +160,7 @@ func handleReq(res http.ResponseWriter, req *http.Request) {
 		}
 		proxy, ok := user.Proxies[proxyName]
 		if !ok {
-			log.Printf("Invalid proxy %s %s", body.Content.User, body.Content.ProxyName)
+			log.Printf("Invalid proxy %s %s", body.Content.User.User, body.Content.ProxyName)
 			return
 		}
 
