@@ -10,20 +10,18 @@ import (
 )
 
 type Config struct {
-	Users []User `yaml:"users"`
+	Users map[string]User `yaml:"users"`
 }
 
 type User struct {
-	Username string  `yaml:"username"`
-	Password string  `yaml:"password"`
-	Proxies  []Proxy `yaml:"proxies"`
+	Password string           `yaml:"password"`
+	Proxies  map[string]Proxy `yaml:"proxies"`
 }
 
 type Proxy struct {
-	Name          string   `yaml:"name"`
-	CustomDomains []string `yaml:"custom_domains"`
-	HttpUser      string   `yaml:"http_user"`
-	HttpPassword  string   `yaml:"http_password"`
+	CustomDomains []string `yaml:"customDomains"`
+	HttpUser      string   `yaml:"httpUser"`
+	HttpPassword  string   `yaml:"httpPassword"`
 }
 
 type ConfigFile struct {
@@ -97,6 +95,10 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 	}()
 
 	return configFile, nil
+}
+
+type ConfigProvider interface {
+	CurrentConfig() *Config
 }
 
 func (cf *ConfigFile) CurrentConfig() *Config {

@@ -6,13 +6,13 @@ Example `frp-auth.json`:
 
 ```yaml
 users:
-  - username: "frpc1"
+  frpc1:
     password: "1234"
     proxies:
-      - name: "frpcUser.service1"
-        custom_domains: ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"]
-        http_user: "enduser"
-        http_password: "hackme"
+      service1:
+        customDomains: ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"]
+        httpUser: "enduser"
+        httpPassword: "hackme"
 ```
 
 Run frp-auth-plugin like so:
