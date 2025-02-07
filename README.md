@@ -13,6 +13,10 @@ users:
         customDomains: ["service1.127-0-0-1.nip.io", "service.127-0-0-1.nip.io"]
         httpUser: "enduser"
         httpPassword: "hackme"
+      service2:
+        customDomains: ["service2.example.org"]
+        httpUser: "example"
+        httpPassword: {{ .Envs.EXAMPLE_PASSWORD | quote }} # Go template is enabled
 ```
 
 Run frp-auth-plugin like so:

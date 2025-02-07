@@ -1,9 +1,13 @@
 package configfile
 
 import (
+	"bytes"
 	"context"
 	"log"
+	"github.com/Masterminds/sprig/v3"
 	"os"
+	"strings"
+	"text/template"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -29,12 +33,30 @@ type ConfigFile struct {
 	config       *Config
 }
 
-func load(file string) (*Config, error) {
-	fp, err := os.Open(file)
+type Values struct {
+	Envs map[string]string // Environment variables
+}
+
+func load(file string, values *Values) (*Config, error) {
+	// Load file
+	inputBuffer, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	decoder := yaml.NewDecoder(fp)
+
+	// Process template
+	tmpl, err := template.New("frp-auth").Funcs(sprig.FuncMap()).Parse(string(inputBuffer))
+	if err != nil {
+		return nil, err
+	}
+	outputBuffer := bytes.NewBufferString("")
+	err = tmpl.Execute(outputBuffer, values)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load as YAML
+	decoder := yaml.NewDecoder(outputBuffer)
 	decoder.KnownFields(true)
 	var config Config
 	err = decoder.Decode(&config)
@@ -45,6 +67,18 @@ func load(file string) (*Config, error) {
 }
 
 func New(file string, ctx context.Context) (*ConfigFile, error) {
+	// Get values for template rendering (environment variables)
+	values := &Values {
+		Envs: make(map[string]string),
+	}
+	for _, env := range os.Environ() {
+		pair := strings.SplitN(env, "=", 2)
+		if len(pair) != 2 {
+			continue
+		}
+		values.Envs[pair[0]] = pair[1]
+	}
+
 	// Do first load
 	fileInfo, err := os.Stat(file)
 	if err != nil {
@@ -52,7 +86,7 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 	}
 	lastModified := fileInfo.ModTime()
 
-	config, err := load(file)
+	config, err := load(file, values)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +115,7 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 				continue
 			}
 
-			newConfig, err := load(file)
+			newConfig, err := load(file, values)
 			if err != nil {
 				log.Printf("Can't read config file: %s", err)
 				continue
