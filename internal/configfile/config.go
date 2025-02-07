@@ -29,14 +29,7 @@ type ConfigFile struct {
 	config       *Config
 }
 
-func New(file string, ctx context.Context) (*ConfigFile, error) {
-	// Do first load
-	fileInfo, err := os.Stat(file)
-	if err != nil {
-		return nil, err
-	}
-	lastModified := fileInfo.ModTime()
-
+func load(file string) (*Config, error) {
 	fp, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -48,10 +41,25 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 	if err != nil {
 		return nil, err
 	}
+	return &config, nil
+}
+
+func New(file string, ctx context.Context) (*ConfigFile, error) {
+	// Do first load
+	fileInfo, err := os.Stat(file)
+	if err != nil {
+		return nil, err
+	}
+	lastModified := fileInfo.ModTime()
+
+	config, err := load(file)
+	if err != nil {
+		return nil, err
+	}
 
 	configFile := &ConfigFile{
 		lastModified: lastModified,
-		config:       &config,
+		config:       config,
 	}
 
 	// Reload file automatically in the background
@@ -73,23 +81,14 @@ func New(file string, ctx context.Context) (*ConfigFile, error) {
 				continue
 			}
 
-			fp, err := os.Open(file)
-			if err != nil {
-				log.Printf("Can't open config file: %s", err)
-				continue
-			}
-			decoder := yaml.NewDecoder(fp)
-			decoder.KnownFields(true)
-			var newConfig Config
-			err = decoder.Decode(&newConfig)
+			newConfig, err := load(file)
 			if err != nil {
 				log.Printf("Can't read config file: %s", err)
-				configFile.lastModified = fileInfo.ModTime()
 				continue
 			}
 
 			log.Print("New config loaded")
-			configFile.config = &newConfig
+			configFile.config = newConfig
 			configFile.lastModified = fileInfo.ModTime()
 		}
 	}()
