@@ -1,6 +1,6 @@
 module github.com/nyu-its/frp-auth-plugin
 
-go 1.22.3
+go 1.24.0
 
 require (
 	dario.cat/mergo v1.0.1 // indirect
