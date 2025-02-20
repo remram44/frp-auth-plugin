@@ -35,4 +35,4 @@ windows-amd64:
 
 .PHONY: image
 image:
-	docker buildx build --pull . --platform linux/amd64,linux/arm64 --push --tag ghcr.io/remram44/frp-auth-plugin:$(Version)
+	docker buildx build --pull . --platform linux/amd64,linux/arm64 --push --tag ghcr.io/nyu-its/frp-auth-plugin:$(Version)
