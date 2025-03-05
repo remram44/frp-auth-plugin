@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nyu-its/frp-auth-plugin/internal/configfile"
+	"github.com/nyu-rts/frp-auth-plugin/internal/configfile"
 )
 
 var ConfigFile configfile.ConfigProvider

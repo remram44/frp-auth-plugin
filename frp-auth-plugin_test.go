@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/nyu-its/frp-auth-plugin/internal/configfile"
+	"github.com/nyu-rts/frp-auth-plugin/internal/configfile"
 )
 
 type mockConfigProvider struct {

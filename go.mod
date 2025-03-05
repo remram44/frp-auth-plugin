@@ -1,4 +1,4 @@
-module github.com/nyu-its/frp-auth-plugin
+module github.com/nyu-rts/frp-auth-plugin
 
 go 1.24.0
 
